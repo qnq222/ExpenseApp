@@ -26,7 +26,9 @@ struct Home: View {
                     
                     .frame(maxWidth: .infinity , alignment: .leading)
                     
-                    Button {
+                    NavigationLink {
+                        FilteredDetailView()
+                            .environmentObject(expenseViewModel)
                     } label: {
                         Image(systemName: "hexagon.fill")
                             .foregroundColor(.gray)
@@ -40,8 +42,10 @@ struct Home: View {
                             .shadow(color: .black.opacity(0.1), radius: 5, x: 5, y: 5)
                     }
 
+
                 }
-                ExpenseCardView()
+                ExpenseCard()
+                    .environmentObject(expenseViewModel)
                 TransactionView()
             }
             .padding()
@@ -50,6 +54,41 @@ struct Home: View {
             Color("BG")
                 .ignoresSafeArea()
         }
+        .fullScreenCover(isPresented: $expenseViewModel.addNewExpense) {
+            expenseViewModel.clearData()
+        } content: {
+            NewExpense()
+                .environmentObject(expenseViewModel)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            AddExpenseButton()
+        }
+    }
+    
+    // MARK: - Add New Expense:
+    @ViewBuilder
+    func AddExpenseButton() -> some View {
+        Button {
+            expenseViewModel.addNewExpense.toggle()
+        } label: {
+            Image(systemName: "plus")
+                .font(.system(size: 25, weight: .medium))
+                .foregroundColor(.white)
+                .frame(width: 50, height: 50)
+                .background {
+                    Circle()
+                        .fill(
+                            LinearGradient(colors: [
+                            Color("Gradient1"),
+                            Color("Gradient2"),
+                            Color("Gradient3")
+                            ], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
+                }
+                .shadow(color: .black.opacity(0.1), radius: 5, x: 5, y: 5)
+        }
+        .padding()
+
     }
     
     // MARK: - Transactions View:
@@ -74,86 +113,6 @@ struct Home: View {
         
     }
 
-    //MARK: Expense Gradient CardView:
-    @ViewBuilder
-    func ExpenseCardView() -> some View {
-        GeometryReader{proxy in
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(
-                    .linearGradient(colors: [
-                        Color("Gradient1"),
-                        Color("Gradient2"),
-                        Color("Gradient3"),
-                    ], startPoint: .topLeading, endPoint: .bottomTrailing)
-                )
-            
-            VStack(spacing: 15) {
-                VStack(spacing: 15) {
-                    // MARK: - Currently Goning Month Date String:
-                    Text(expenseViewModel.currentMonthDateString())
-                        .font(.callout)
-                        .fontWeight(.semibold)
-                    
-                    // MARK: - current month expense price:
-                    Text(expenseViewModel.convertExpenseToCurrency(expense: expenseViewModel.expenses))
-                        .font(.system(size: 35 , weight: .bold))
-                        .lineLimit(1)
-                        .padding(.bottom, 5)
-
-                }
-                .offset(y: -10)
-                
-                HStack(spacing: 15) {
-                    Image(systemName: "arrow.down")
-                        .font(.caption.bold())
-                        .foregroundColor(Color("Green"))
-                        .frame(width: 30, height: 30)
-                        .background(.white, in: Circle())
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Income")
-                            .font(.caption)
-                            .opacity(0.7)
-                            
-                        Text(expenseViewModel.convertExpenseToCurrency(expense: expenseViewModel.expenses, expenseType: .income))
-                            .font(.callout)
-                            .fontWeight(.semibold)
-                            .lineLimit(1)
-                            .fixedSize()
-                    }
-                    
-                    .frame(maxWidth: .infinity , alignment: .leading)
-                    
-                    Image(systemName: "arrow.up")
-                        .font(.caption.bold())
-                        .foregroundColor(Color("Red"))
-                        .frame(width: 30, height: 30)
-                        .background(.white, in: Circle())
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Eexpenses")
-                            .font(.caption)
-                            .opacity(0.7)
-                            
-                        Text(expenseViewModel.convertExpenseToCurrency(expense: expenseViewModel.expenses, expenseType: .expense))
-                            .font(.callout)
-                            .fontWeight(.semibold)
-                            .lineLimit(1)
-                            .fixedSize()
-                    }
-                    
-                }
-                .padding(.horizontal)
-                .padding(.trailing)
-                .offset(y: 15)
-            }
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            
-        }
-        .frame(height: 220)
-        .padding(.top)
-    }
 }
 
 struct Home_Previews: PreviewProvider {

@@ -14,6 +14,20 @@ class ExpenseViewModel: ObservableObject {
     @Published var endDate: Date = Date()
     @Published var currnetMonthStartDate: Date = Date()
     
+    // MARK: - expense / income tap:
+    @Published var tapName: ExpenseType = .expense
+    
+    // MARK: - Filter View:
+    @Published var showFilterView: Bool = false
+    
+    // MARK: - new expense properties:
+    @Published var addNewExpense: Bool = false
+    @Published var amount: String = ""
+    @Published var type: ExpenseType = .all
+    @Published var date: Date = Date()
+    @Published var remark: String = ""
+
+    
     init() {
         // MARK: - fetching current month start date:
         let calender = Calendar.current
@@ -46,6 +60,34 @@ class ExpenseViewModel: ObservableObject {
         
         return formatted.string(from: .init(value: value)) ?? "$0.00"
     }
+    
+    // MARK: - Converting selected dates to string:
+    func convertDateToString() -> String {
+        return startDate.formatted(date: .abbreviated, time: .omitted) + " - " + endDate.formatted(date: .abbreviated, time: .omitted)
+    }
+
+    // MARK: - Clearing all data:
+    func clearData(){
+        date = Date()
+        type = .all
+        amount = ""
+        remark = ""
+    }
+    
+    // MARK: - Save Data:
+    func saveData(env: EnvironmentValues){
+        // MARK: - TO DO:
+        print("save data")
+        let amountInDouble = (amount as NSString).doubleValue
+        let colors = ["Yellow" , "Red" , "Purple", "Green"]
+        let expense = Expense(remark: remark, amount: amountInDouble, date: date, type: type, color: colors.randomElement() ?? "Red")
+        withAnimation { expenses.append(expense) }
+        expenses = expenses.sorted { first, second in
+            return second.date < first.date
+        }
+        env.dismiss()
+    }
+
 
 }
 
