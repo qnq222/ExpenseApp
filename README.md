@@ -1,3 +1,4 @@
 # ExpenseApp
 
-![plot](/image.png)
+<img src="image.png" width="128"/>
+
